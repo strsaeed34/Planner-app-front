@@ -100,8 +100,9 @@ const login = async () => {
   try {
     await authStore.login(form.value);
     router.push("/dashboard");
+    console.log("Login success");
   } catch (error) {
-    console.log("Login Failed");
+    console.log("Login failed", error.message);
   }
 };
 </script>

@@ -3,20 +3,26 @@
 
 import { defineStore } from 'pinia';
 import { useBaseStore } from './baseStore';
+import { ref } from 'vue';
 
 export const useNoteStore = defineStore('note', {
   state: () => ({
-    notes: [], // Store notes locally
+    notes:ref ([]), // Store notes locally
+      loading: ref(false),
   }),
   actions: {
     
 
     async fetchNotes() {
+      this.loading=true;
       const baseStore = useBaseStore(); 
       try {
         this.notes = await baseStore.get('/notes'); // Fetch notes from the backend
       } catch (error) {
         console.error('Failed to fetch notes:', error);
+      }
+      finally{
+        this.loading=false;
       }
     },
 
@@ -25,7 +31,7 @@ export const useNoteStore = defineStore('note', {
       try {
         const newNote = await baseStore.post('/notes', note); // Create a new note
         this.notes.push(newNote); // Add the new note to the local state
-        this.fetchNotes()
+        // this.fetchNotes()
       } catch (error) {
         console.error('Failed to create note:', error);
       }
@@ -47,8 +53,9 @@ export const useNoteStore = defineStore('note', {
     async deleteNote(id) {
       const baseStore = useBaseStore(); 
       try {
+        //this.notes.value = this.notes.filter((note) => note.id !== id); 
         await baseStore.delete(`/notes/${id}`); // Delete the note
-        //this.notes = this.notes.filter((note) => note.id !== id); // Remove the note from the local state
+        
         this.fetchNotes()
       } catch (error) {
         console.error('Failed to delete note:', error);

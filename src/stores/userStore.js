@@ -26,14 +26,15 @@ export const useUserStore = defineStore('user', {
       try {
         const baseStore = useBaseStore(); // Get base store inside the function
         this.profile = await baseStore.put('/user', updatedProfile); // Update profile
+        this.errors={success : ["Your Profile Updated Successfuly."]};
       } catch (error) {
         if (error.response && error.response.status === 422) {
-          console.log(error.response.data.errors)
-          this.errors.value = error.response.data.errors; // Store errors in state        
-          console.log(this.errors)
+          
+          this.errors = error.response.data.errors; // Store errors in state        
+          
         }else {
           // Other server errors
-          this.errors={general : ["An unexpected error occurred. Please try again later."]};
+          this.errors={general : [`An unexpected ${error.message} occurred. Please try again later.`]};
         }
         throw error;
       }

@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 import { useBaseStore } from './baseStore'; // Ensure this store is correctly defined
 
@@ -6,20 +6,22 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: JSON.parse(localStorage.getItem('user')) || null,
     token: localStorage.getItem('token') || null,
-    isSidebarVisible: false, // Add this line to track sidebar visibility
+    isSidebarVisible: ref(false), // Add this line to track sidebar visibility
     errors: ref({}) || null,
-    loading:ref(false),
+    loading: ref(false),
   }),
 
   actions: {
 
 
     // Clear errors
-    clearErrors () {() => {
-      this.errors.value = {}; // Reset errors
-    }},
+    clearErrors() {
+      () => {
+        this.errors.value = {}; // Reset errors
+      }
+    },
     async login(credentials) {
-      this.loading=true;
+      this.loading = true;
       try {
         const baseStore = useBaseStore(); // Get base store inside the function
         const response = await baseStore.post('/login', credentials);
@@ -32,24 +34,24 @@ export const useAuthStore = defineStore('auth', {
         this.errors = {}
       } catch (error) {
         if (error.response && error.response.status === 422) {
-        
+
           this.errors = error.response.data.errors; // Store errors in state
         } else if (error.response && error.response.status === 401) {
-          
+
           this.errors = { general: ["Invalid Email or Password."] };
-        }else {
+        } else {
           // Other server errors
-          this.errors={general : ["An unexpected error occurred. Please try again later."]};
+          this.errors = { general: [`An unexpected ${error.message} occurred. Please try again later.`] };
         }
         throw error;
       }
-      finally{
-        this.loading=false;
+      finally {
+        this.loading = false;
       }
     },
 
     async register(userData) {
-      this.loading=true
+      this.loading = true
       try {
         const baseStore = useBaseStore(); // Get base store inside the function
         const response = await baseStore.post('/register', userData);
@@ -59,37 +61,63 @@ export const useAuthStore = defineStore('auth', {
 
         localStorage.setItem('token', this.token);
         localStorage.setItem('user', JSON.stringify(this.user));
-        this.clearErrors ()
+        this.clearErrors()
       } catch (error) {
         if (error.response && error.response.status === 422) {
-         
+
           this.errors = error.response.data.errors; // Store errors in state
         } else {
           this.errors = { general: ["Registration failed. Please try again."] };
-          
-         
+
+
         }
         throw error;
       }
-      finally{
-        this.loading=false;
+      finally {
+        this.loading = false;
       }
     },
 
-    logout(router) { // Accept router as an argument
-      this.token = null;
-      this.user = null;
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      
-      if (router) {
-        router.push('/login'); // Redirect to login after logout
+    async logout(router) { // Accept router as an argument
+      this.loading = true
+      try {
+        // const baseStore = useBaseStore(); // Get base store inside the function
+        // const response = await baseStore.post('/logout');
+        this.token = null;
+        this.user = null;
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+
+        if (router) {
+          
+          router.push('/login'); // Redirect to login after logout
+        }
+      } catch (error) {
+        this.errors = { general: [`An unexpected ${error.message} occurred. Please try again later.`] };
+        throw error;
+      }
+      finally {
+        this.loading = false;
       }
     },
 
     // Add the toggleSidebar action
     toggleSidebar() {
+      
       this.isSidebarVisible = !this.isSidebarVisible; // Toggle sidebar visibility
+      console.log("a issidebar visible",this.isSidebarVisible)
+      
+   
+      
+
     },
+
+  
+
+    hideSidebar() {
+        this.isSidebarVisible = false;
+      
+    }
+   
   },
 });

@@ -1,16 +1,21 @@
 <template>
-  <div class="notes-section">
+
+  <div class="container mycard" >
     <h1 class="notes-header">Notes</h1>
     <div class="notes" id="notes">
-      <div
-        class="note"
-        v-for="note in notes"
-        :key="note.id"
-      >
-        <div class="note-title" contenteditable="true" @blur="updateNoteTitle(note, $event)">
+      <div class="note" v-for="note in notes" :key="note.id">
+        <div
+          class="note-title"
+          contenteditable="true"
+          @blur="updateNoteTitle(note, $event)"
+        >
           {{ note.title }}
         </div>
-        <div class="note-content" contenteditable="true" @blur="updateNoteContent(note, $event)">
+        <div
+          class="note-content"
+          contenteditable="true"
+          @blur="updateNoteContent(note, $event)"
+        >
           {{ note.content }}
         </div>
 
@@ -26,7 +31,7 @@
           </button>
           <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
             <li>
-              <router-link to="/noteeditor" class="dropdown-item"  
+              <router-link to="/noteeditor" class="dropdown-item"
                 ><i class="bi bi-clipboard menu-icon"></i>Editor</router-link
               >
             </li>
@@ -36,7 +41,10 @@
               >
             </li>
             <li>
-              <a class="dropdown-item" @click.prevent="handleDeleteNote(note)" href="#"
+              <a
+                class="dropdown-item"
+                @click.prevent="handleDeleteNote(note)"
+                href="#"
                 ><i class="bi bi-trash menu-icon"></i>Move To Trash</a
               >
             </li>
@@ -63,32 +71,26 @@
 </template>
 
 <script setup>
-import { useNoteStore } from '@/stores/noteStore';
-import { ref } from 'vue';
-import { onMounted  , watch} from 'vue';
-import { useRoute } from 'vue-router';
+import { useNoteStore } from "@/stores/noteStore";
+import { ref } from "vue";
+import { onMounted, watch } from "vue";
+import { useRoute } from "vue-router";
 
 const route = useRoute();
 const noteStore = useNoteStore();
-const notes=ref([])
-notes.value=noteStore.notes
-const {  fetchNotes, createNote, updateNote, deleteNote } = noteStore;
-
+const notes = ref([]);
+//notes.value = noteStore.notes;
+const { fetchNotes, createNote, updateNote, deleteNote } = noteStore;
 
 // // Fetch notes when the component mounts
 onMounted(async () => {
-  console.log('onmounter')
+  console.log("onmounter");
   await fetchNotes();
-  notes.value=noteStore.notes
+  notes.value = noteStore.notes;
 });
-
-
-
-
 
 const updateNoteTitle = (note, event) => {
   updateNote(note.id, { title: event.target.innerText });
-
 };
 
 const updateNoteContent = (note, event) => {
@@ -96,47 +98,41 @@ const updateNoteContent = (note, event) => {
 };
 
 // Rename the function to avoid conflict with the destructured `createNote`
-const handleCreateNote = async(note) => {
-  await createNote({ title: 'New Note', content: 'Write something here...' });
-  
-  
-      await fetchNotes();
-      notes.value=noteStore.notes
+const handleCreateNote = async (note) => {
  
+  await createNote({ title: "New Note", content: "Write something here..." });
+  await fetchNotes();
+  notes.value = noteStore.notes;
 };
 
-const handleDeleteNote=async (note)=>{
-    try{
-      
-    await deleteNote(note.id)     
+const handleDeleteNote = async (note) => {
+  try {
+    notes.value = notes.value.filter((n) => n.id !== note.id); 
+    await deleteNote(note.id);
     await fetchNotes();
-    notes.value=noteStore.notes
-    } catch(error){
-        console.log(error)
-    }
-    
-    
-    
-}
+    //notes.value = noteStore.notes;
+  } catch (error) {
+    console.log(error);
+  }
+};
 </script>
 
 <style scoped>
-.notes-section {
-  margin: 20px;
-  padding: 10px;
-}
-
 .notes-header {
   font-size: 24px;
   font-weight: bold;
   color: #444;
   margin-bottom: 15px;
 }
+.mycard {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+}
 
 .notes {
   column-count: 2;
   column-gap: 10px;
-  padding: 15px;
 }
 
 .note {
@@ -185,7 +181,7 @@ const handleDeleteNote=async (note)=>{
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background-color: #2c3e50;
+  background-color: #8ba0fc;
   color: white;
   border: none;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);

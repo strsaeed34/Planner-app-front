@@ -12,7 +12,7 @@
       <i class="bi bi-check2-square"></i>
       <span>Tasks</span>
     </router-link>
-    <router-link to="/timeline" class="nav-link" :class="{ active: isActive('/timeline') }">
+    <router-link to="/taskplanner" class="nav-link" :class="{ active: isActive('/planner') }">
       <i class="bi bi-calendar-event"></i>
       <span>Timeline</span>
     </router-link>

@@ -33,9 +33,9 @@ export const useBaseStore = defineStore('base', {
       }
     },
 
-    async delete(url) {
+    async delete(url,data) {
       try {
-        const response = await apiClient.delete(url);
+        const response = await apiClient.delete(url,data);
         return response.data;
       } catch (error) {
         console.error(`Error deleting data at ${url}:`, error);
