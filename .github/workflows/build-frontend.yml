@@ -1,0 +1,44 @@
+name: Build Planner frontend
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Vue app
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build production app
+        run: npm run build
+
+      - name: Create deployment ZIP
+        run: |
+          cd dist
+          zip -r ../planner-app-dist.zip .
+
+      - name: Upload build ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: planner-app-dist
+          path: planner-app-dist.zip
+          if-no-files-found: error
+          retention-days: 14
